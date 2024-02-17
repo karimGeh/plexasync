@@ -1,0 +1,101 @@
+{
+  "id": "34534561-1634561-4648431-4641",
+  "software_version": "0.0.1",
+  "software_release_date": "2024-02-01",
+  "protocol": "modbus-tcp",
+  "protocol_params": {
+    "default_port": 502,
+    "default_unit_id": 1,
+    "timeout": 5000,
+    "retries": 3,
+    "reconnect_interval": 5000,
+    "byte_order": "big_endian",
+    "use_tls": false
+  },
+  "device": {
+    "id": "34534561-1634561-4648431-4641",
+    "reference": "Schneider-ATV-340",
+    "name": "Altivar Machine ATV340",
+    "description": "Altivar 340 Machine Drive, ATV340, a variable speed drive designed for Original Equipment Manufacturers (OEMs) that engineer high performance applications for 3 phase motors with or without sensor from 0.75 to 75 kW (1 to 100Hp).",
+    "manufacturer": "Schneider Electric",
+    "model": "ATV340",
+    "serial_number": "",
+    "firmware_version": "",
+    "device_capabilities": {
+      "readable": true,
+      "writeable": true,
+      "controllable": true
+    }
+  },
+  "communication_settings": {
+    "default_baud_rate": 9600,
+    "default_parity": "none",
+    "default_data_bits": 8,
+    "default_stop_bits": 1
+  },
+  "configuration_template": {
+    "register_map": {
+      "input_registers": [],
+      "holding_registers": [],
+      "coil_status": [],
+      "discrete_inputs": []
+    },
+    "actions": {
+      "1": {
+        "name": "run",
+        "description": "Start the drive",
+        "scenario": {
+          "1": {
+            "name": "init",
+            "type": "write",
+            "action": {
+              "addresses": [8501],
+              "values": [80]
+            }
+          },
+          "2": {
+            "name": "wait_for_switch_on_disabled",
+            "type": "condition",
+            "action": {
+              "type": "any",
+              "conditions": [
+                {
+                  "type": "read",
+                  "address": 8501,
+                  "value_type": "bit",
+                  "value": 128
+                }
+              ]
+            }
+          }
+        }
+      },
+      "2": {
+        "name": "stop",
+        "description": "Stop the drive",
+        "scenario": {
+          "1": {
+            "name": "stop",
+            "description": "Stop the drive",
+            "action": {
+              "type": "write",
+              "register": "holding_registers",
+              "address": 8501,
+              "value": 0
+            }
+          }
+        }
+      }
+    }
+  },
+  "scaling_factors": {},
+  "data_types": {},
+  "tags": [
+    "modbus",
+    "tcp",
+    "industrial",
+    "automation",
+    "energy",
+    "manufacturing"
+  ]
+}
