@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es6",
+    "moduleResolution": "node",
+
+    "outDir": "dist",
+
+    "esModuleInterop": true,
+    "noImplicitAny": true,
+    "skipLibCheck": true,
+    "pretty": true,
+
+    "paths": {
+      "*": ["./node_modules/*"]
+    }
+  },
+  "exclude": ["node_modules", "src/**/tests/**/*.ts"],
+  "include": ["src/**/*.ts"]
+}
