@@ -41,12 +41,47 @@ export interface MODBUS__RegisterMap__InputRegistersType {
   offset: number;
 }
 
+export interface MODBUS__RegisterMap__HoldingRegistersType {
+  id: string;
+  name: string;
+  address: number;
+  type: MODBUS__RegisterMap__InputRegistersType__type;
+  scale: number;
+  offset: number;
+  writable: boolean;
+  min: number;
+  max: number;
+  default: number;
+  unit: string;
+  description: string;
+  tags: string[];
+}
+
+export interface MODBUS__RegisterMap__CoilsType {
+  id: string;
+  name: string;
+  address: number;
+  writable: boolean;
+  default: boolean;
+  description: string;
+  tags: string[];
+}
+
+export interface MODBUS__RegisterMap__DiscreteInputsType {
+  id: string;
+  name: string;
+  address: number;
+  default: boolean;
+  description: string;
+  tags: string[];
+}
+
 export interface MODBUS__ConfigurationType {
   register_map: {
     input_registers: MODBUS__RegisterMap__InputRegistersType[];
-    holding_registers: [];
-    coils: [];
-    discrete_inputs: [];
+    holding_registers: MODBUS__RegisterMap__HoldingRegistersType[];
+    coils: MODBUS__RegisterMap__CoilsType[];
+    discrete_inputs: MODBUS__RegisterMap__DiscreteInputsType[];
   };
 }
 
