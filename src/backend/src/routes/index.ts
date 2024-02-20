@@ -4,11 +4,12 @@ import { Router } from "express";
 import { NotFoundError } from "../errors/not-found-error";
 
 // sub-routers
-// import { authRouter } from "./auth";
+import { authRouter } from "./auth";
 
 const router = Router();
 
 // routes
+router.use("/auth", authRouter);
 
 // status
 router.get("/status", async (_, res) => {

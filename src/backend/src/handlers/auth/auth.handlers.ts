@@ -1,5 +1,5 @@
 // libraries
-import { RequestHandler } from "express";
+import { RequestHandler, Response } from "express";
 import jwt from "jsonwebtoken";
 
 // errors
@@ -10,8 +10,24 @@ import { UserModel } from "../../models";
 
 // helpers
 import { Password } from "../../helpers/password";
+import {
+  GetMeHandlerType,
+  SignInHandlerType,
+  VerifyTokenHandlerType,
+} from "../../types/API/auth";
 
-export const signInHandler: RequestHandler = async (req, res) => {
+//! GET
+const getMeHandler: GetMeHandlerType = async (req, res) => {
+  const { auth_user } = req;
+
+  res.status(200).send({
+    success: true,
+    user: auth_user,
+  });
+};
+
+//! POST
+const signInHandler: SignInHandlerType = async (req, res) => {
   const { username, password } = req.body;
   const user = await UserModel.get_user_by_username(username);
 
@@ -23,16 +39,19 @@ export const signInHandler: RequestHandler = async (req, res) => {
     );
   }
 
-  const token = jwt.sign({ id: user.id }, process.env.JWT__AUTH_SECRET_KEY);
+  const auth_token = jwt.sign(
+    { id: user.id },
+    process.env.JWT__AUTH_SECRET_KEY
+  );
 
   res.status(200).send({
     success: true,
     user,
-    token,
+    auth_token,
   });
 };
 
-export const verifyTokenHandler: RequestHandler = async (req, res) => {
+const verifyTokenHandler: VerifyTokenHandlerType = async (req, res) => {
   const { auth_token } = req.body;
 
   const payload = jwt.verify(
@@ -49,11 +68,11 @@ export const verifyTokenHandler: RequestHandler = async (req, res) => {
   });
 };
 
-export const getMeHandler: RequestHandler = async (req, res) => {
-  const { auth_user } = req;
+export const AuthHandlers = {
+  //! GET
+  getMeHandler,
 
-  res.status(200).send({
-    success: true,
-    user: auth_user,
-  });
+  //! POST
+  signInHandler,
+  verifyTokenHandler,
 };

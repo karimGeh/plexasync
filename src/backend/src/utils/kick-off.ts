@@ -3,7 +3,7 @@ export type RequiredEnvVarsKeys =
   | "DB__PORT"
   | "DB__USER"
   | "DB__PASSWORD"
-  | "DB__DATABASE"
+  | "DB__NAME"
   //
   | "DB__CONNECTION_EXPB_MAX_ATTEMPTS"
   | "DB__CONNECTION_EXPB_FACTOR"
@@ -19,7 +19,7 @@ export const RequiredDBRelatedEnvVars: RequiredEnvVarsKeys[] = [
   "DB__PORT",
   "DB__USER",
   "DB__PASSWORD",
-  "DB__DATABASE",
+  "DB__NAME",
 
   "DB__CONNECTION_EXPB_MAX_ATTEMPTS",
   "DB__CONNECTION_EXPB_FACTOR",

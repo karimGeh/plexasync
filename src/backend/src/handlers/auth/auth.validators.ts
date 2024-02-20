@@ -1,7 +1,7 @@
 import { body } from "express-validator";
 import { UserModel } from "../../models";
 
-export const signInValidator = [
+const signInValidator = [
   body("username")
     .exists()
     .isString()
@@ -25,6 +25,11 @@ export const signInValidator = [
     .withMessage("Invalid password."),
 ];
 
-export const verifyTokenValidator = [
+const verifyTokenValidator = [
   body("auth_token").exists().isString().withMessage("Invalid token."),
 ];
+
+export const AuthValidators = {
+  signInValidator,
+  verifyTokenValidator,
+};
