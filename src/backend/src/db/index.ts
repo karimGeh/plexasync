@@ -9,16 +9,18 @@ class Database {
 
     while (
       !this.pool &&
-      connectAttempts < Number(process.env.DB_CONNECTION_EXPB_MAX_ATTEMPTS)
+      connectAttempts < Number(process.env.DB__CONNECTION_EXPB_MAX_ATTEMPTS)
     ) {
       try {
-        this.pool = new Pool({
-          host: process.env.DB_HOST,
-          port: Number(process.env.DB_PORT),
-          database: process.env.DB_DATABASE,
-          user: process.env.DB_USER,
-          password: process.env.DB_PASSWORD,
-        });
+        const poolConfig = {
+          host: process.env.DB__HOST,
+          port: Number(process.env.DB__PORT),
+          database: process.env.DB__NAME,
+          user: process.env.DB__USER,
+          password: process.env.DB__PASSWORD,
+        };
+
+        this.pool = new Pool(poolConfig);
 
         await this.pool.connect();
         break;
