@@ -1,9 +1,18 @@
 import { CustomRequestHandler } from "..";
-import { Protocols } from "../../Enums";
 import { CreateDeviceRequestType } from "./requests";
-import { CreateDeviceResponseType } from "./responses";
+import { CreateDeviceResponseType, GetDevicesResponseType } from "./responses";
 
 export type CreateDeviceHandlerType = CustomRequestHandler<
-  CreateDeviceRequestType<Protocols>,
+  CreateDeviceRequestType,
   CreateDeviceResponseType
+>;
+
+export type GetDevicesHandlerType = CustomRequestHandler<
+  {},
+  GetDevicesResponseType,
+  {
+    page: string;
+    limit: string;
+    sort: string;
+  }
 >;

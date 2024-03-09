@@ -8,7 +8,7 @@ export interface DeviceType<T extends Protocols> {
   id: string;
   name: string;
   driver_id: string;
-  cover_uri: string;
+  cover_uri?: string;
   ip_address: number[];
   port: number;
 

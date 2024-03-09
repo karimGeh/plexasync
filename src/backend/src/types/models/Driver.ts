@@ -27,8 +27,8 @@ export interface DriverType<T extends Protocols> {
   software_version: string;
   hardware_version: string;
   protocol: T;
-  protocol_params: ProtocolParamsType<T>;
   device_params: DriverDeviceParamsType;
+  default__protocol_params: ProtocolParamsType<T>;
   default__communication_settings: DeviceCommunicationSettingsType;
   configuration: ConfigurationType<T>;
   tags: string[];

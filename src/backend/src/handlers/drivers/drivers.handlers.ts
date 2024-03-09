@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 import fs from "fs";
 import { UploadDriverFileHandlerType } from "../../types/API/drivers";
 import { BadRequestError } from "../../errors/bad-request-error";
-import { DriverModel } from "../../models/Driver";
+import { DriverModel } from "../../models";
 
 const uploadDriverFile: UploadDriverFileHandlerType = async (req, res) => {
   const driver_id = uuidv4();

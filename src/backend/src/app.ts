@@ -9,6 +9,8 @@ import { errorHandler } from "./middlewares/error-handler";
 
 import { RequiredEnvVarsKeys } from "./utils/kick-off";
 import { mainRouter } from "./routes";
+import { DeviceType, DriverType } from "./types";
+import { Protocols } from "./types/Enums";
 
 //? global declaration
 declare global {
@@ -19,6 +21,8 @@ declare global {
   namespace Express {
     interface Request {
       auth_user: any;
+      driver: DriverType<Protocols>;
+      device: DeviceType<Protocols>;
     }
   }
 }

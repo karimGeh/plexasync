@@ -8,14 +8,14 @@ import path from "path";
 export class DriverModel {
   static async createDriver(driver: DriverType<Protocols>) {
     const result = await db.pool.query<DriverType<Protocols>>(
-      `INSERT INTO drivers (id, software_version, hardware_version, protocol, protocol_params, device_params, default__communication_settings, configuration, tags)
+      `INSERT INTO drivers (id, software_version, hardware_version, protocol, default__protocol_params, device_params, default__communication_settings, configuration, tags)
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
       [
         driver.id,
         driver.software_version,
         driver.hardware_version,
         driver.protocol,
-        JSON.stringify(driver.protocol_params),
+        JSON.stringify(driver.default__protocol_params),
         JSON.stringify(driver.device_params),
         JSON.stringify(driver.default__communication_settings),
         JSON.stringify(driver.configuration),
@@ -43,7 +43,7 @@ export class DriverModel {
       !file_content.software_version ||
       !file_content.hardware_version ||
       !file_content.protocol ||
-      !file_content.protocol_params ||
+      !file_content.default__protocol_params ||
       !file_content.device_params ||
       !file_content.default__communication_settings ||
       !file_content.configuration ||
@@ -52,7 +52,7 @@ export class DriverModel {
       !Object.keys(Protocols).includes(file_content.protocol) ||
       !isValidProtocolParams({
         protocol: file_content.protocol,
-        protocol_params: file_content.protocol_params,
+        protocol_params: file_content.default__protocol_params,
       })
     ) {
       throw new Error("Invalid file content");
@@ -64,5 +64,16 @@ export class DriverModel {
     });
 
     return driver;
+  }
+
+  static async getDriverById(
+    driver_id: string
+  ): Promise<DriverType<Protocols>> {
+    const result = await db.pool.query<DriverType<Protocols>>(
+      `SELECT * FROM drivers WHERE id = $1`,
+      [driver_id]
+    );
+
+    return result.rows[0];
   }
 }

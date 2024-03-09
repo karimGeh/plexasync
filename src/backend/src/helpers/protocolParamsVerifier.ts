@@ -12,13 +12,13 @@ export const isValidProtocolParams = ({
   switch (protocol) {
     case Protocols.MODBUS:
       if (
-        !protocol_params.default__port ||
-        !protocol_params.default__unit_ip ||
-        !protocol_params.default__timeout ||
-        !protocol_params.default__retries ||
-        !protocol_params.default__reconnect_interval ||
-        !protocol_params.default__byte_order ||
-        !protocol_params.default__use_tls
+        !protocol_params.port ||
+        !protocol_params.unit_ip ||
+        !protocol_params.timeout ||
+        !protocol_params.retries ||
+        !protocol_params.reconnect_interval ||
+        !protocol_params.byte_order ||
+        !protocol_params.use_tls
       ) {
         return false;
       }

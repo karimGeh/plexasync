@@ -21,7 +21,7 @@ CREATE TABLE drivers (
     software_version VARCHAR(255) NOT NULL,
     hardware_version VARCHAR(255) NOT NULL,
     protocol VARCHAR(255) NOT NULL,
-    protocol_params JSONB NOT NULL,
+    default__protocol_params JSONB NOT NULL,
     device_params JSONB NOT NULL,
     default_communication_settings JSONB NOT NULL,
     configuration JSONB NOT NULL,

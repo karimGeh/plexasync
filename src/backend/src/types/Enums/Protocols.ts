@@ -3,20 +3,20 @@ export enum Protocols {
 }
 
 export interface MODBUS__ProtocolParamsType {
-  default__port: number;
-  default__unit_ip: string;
-  default__timeout: number;
-  default__retries: number;
-  default__reconnect_interval: number;
-  default__byte_order: "big-endian" | "little-endian";
-  default__use_tls: boolean;
+  port: number;
+  unit_ip: string;
+  timeout: number;
+  retries: number;
+  reconnect_interval: number;
+  byte_order: "big-endian" | "little-endian";
+  use_tls: boolean;
 }
 
 export type ProtocolParamsType<T extends Protocols> = T extends Protocols.MODBUS
   ? MODBUS__ProtocolParamsType
   : never;
 
-export enum MODBUS__RegisterMap__InputRegistersType__type {
+export enum MODBUS__RegisterMap__RegistersType__type {
   INT16 = "int16",
   UINT16 = "uint16",
   INT32 = "int32",
@@ -36,7 +36,7 @@ export interface MODBUS__RegisterMap__InputRegistersType {
   id: string;
   name: string;
   address: number;
-  type: MODBUS__RegisterMap__InputRegistersType__type;
+  type: MODBUS__RegisterMap__RegistersType__type;
   scale: number;
   offset: number;
 }
@@ -45,7 +45,7 @@ export interface MODBUS__RegisterMap__HoldingRegistersType {
   id: string;
   name: string;
   address: number;
-  type: MODBUS__RegisterMap__InputRegistersType__type;
+  type: MODBUS__RegisterMap__RegistersType__type;
   scale: number;
   offset: number;
   writable: boolean;
