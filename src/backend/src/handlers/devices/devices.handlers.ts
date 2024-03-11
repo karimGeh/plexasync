@@ -1,34 +1,38 @@
 import { DeviceModel } from "../../models/Device";
+import { VariableModel } from "../../models/Variable";
 import {
   CreateDeviceHandlerType,
+  CreateVariableHandlerType,
+  GetDeviceByIdHandlerType,
   GetDevicesHandlerType,
+  GetVariablesByDeviceIdHandlerType,
 } from "../../types/API/devices";
 
 const createDeviceHandler: CreateDeviceHandlerType = async (req, res) => {
   const {
     name, //
-    driver_id,
+    description,
     ip_address,
-    port,
     tags,
   } = req.body;
 
-  const driver = req.driver;
-
   const device = await DeviceModel.createDevice({
     name,
-    driver_id,
+    description,
     ip_address,
-    port,
-    configuration: driver.configuration,
-    protocol_params: driver.default__protocol_params,
-    communication_settings: driver.default__communication_settings,
-    params: driver.device_params,
-    protocol: driver.protocol,
     tags,
   });
 
   res.status(201).json({
+    success: true,
+    device,
+  });
+};
+
+const getDeviceByIdHandler: GetDeviceByIdHandlerType = async (req, res) => {
+  const device = req.device;
+
+  res.status(200).json({
     success: true,
     device,
   });
@@ -50,7 +54,61 @@ const getDevicesHandler: GetDevicesHandlerType = async (req, res) => {
   });
 };
 
+const createVariableHandler: CreateVariableHandlerType = async (req, res) => {
+  const {
+    name,
+    description,
+    protocol,
+    protocol_params,
+    port,
+    offset_factor,
+    scale_factor,
+    unit,
+    tags,
+  } = req.body;
+
+  const device = req.device;
+
+  const variable = await VariableModel.createVariable({
+    name,
+    description,
+    protocol,
+    protocol_params,
+    port,
+    offset_factor,
+    scale_factor,
+    unit,
+    tags,
+    device_id: device.id,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  });
+
+  res.status(201).json({
+    success: true,
+    variable,
+    device,
+  });
+};
+
+const getVariablesByDeviceIdHandler: GetVariablesByDeviceIdHandlerType = async (
+  req,
+  res
+) => {
+  const device = req.device;
+
+  const variables = await VariableModel.getVariablesByDeviceId(device.id);
+
+  res.status(200).json({
+    success: true,
+    variables,
+  });
+};
+
 export const DevicesHandlers = {
   createDeviceHandler,
+  getDeviceByIdHandler,
   getDevicesHandler,
+  createVariableHandler,
+  getVariablesByDeviceIdHandler,
 };

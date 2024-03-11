@@ -1,9 +1,5 @@
 import { Empty, Form, FormInstance, InputNumber, Select } from "antd";
-import {
-  ModbusVariableTypes,
-  Protocols,
-  Variable,
-} from "../../../api/api_types";
+import { ModbusVariableTypes, Protocols, Variable } from "api/types/index";
 import { useEffect } from "react";
 import { HoldingRegisterForm } from "./modbus-variable-types-forms/HoldingRegisterForm";
 
@@ -43,11 +39,13 @@ export const ModbusForm: React.FC<ModbusFormProps> = ({ form }) => {
         ]}
       >
         <Select>
-          <Select.Option value={ModbusVariableTypes.COIL}>Coil</Select.Option>
-          <Select.Option value={ModbusVariableTypes.DISCRETE_INPUT}>
+          <Select.Option value={ModbusVariableTypes.COIL} disabled>
+            Coil
+          </Select.Option>
+          <Select.Option value={ModbusVariableTypes.DISCRETE_INPUT} disabled>
             Discrete Input
           </Select.Option>
-          <Select.Option value={ModbusVariableTypes.INPUT_REGISTER}>
+          <Select.Option value={ModbusVariableTypes.INPUT_REGISTER} disabled>
             Input Register
           </Select.Option>
           <Select.Option value={ModbusVariableTypes.HOLDING_REGISTER}>

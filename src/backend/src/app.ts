@@ -9,8 +9,7 @@ import { errorHandler } from "./middlewares/error-handler";
 
 import { RequiredEnvVarsKeys } from "./utils/kick-off";
 import { mainRouter } from "./routes";
-import { DeviceType, DriverType } from "./types";
-import { Protocols } from "./types/Enums";
+import { HMI, Device } from "./types";
 
 //? global declaration
 declare global {
@@ -21,8 +20,8 @@ declare global {
   namespace Express {
     interface Request {
       auth_user: any;
-      driver: DriverType<Protocols>;
-      device: DeviceType<Protocols>;
+      device: Device;
+      hmi: HMI;
     }
   }
 }
@@ -34,6 +33,8 @@ app.use(
     origin: "*",
   })
 );
+
+app.use(morgan("dev"));
 
 app.use(express.json());
 

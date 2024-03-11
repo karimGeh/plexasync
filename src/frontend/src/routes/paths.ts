@@ -15,6 +15,9 @@ class Paths {
   static readonly devicesSingle = (id: string = ":id"): string =>
     `${Paths.devices}/${id}`;
 
+  //! hmi
+  static readonly hmi = (id: string = ":id"): string => `/hmi/${id}`;
+
   //! default
   static readonly default = this.hmis;
 

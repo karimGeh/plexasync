@@ -34,50 +34,46 @@ CREATE TABLE drivers (
 CREATE TABLE devices (
     id UUID PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    driver_id UUID NOT NULL,
-    cover_uri VARCHAR(255),
-    ip_address INET [],
+    description TEXT NOT NULL,
+    cover VARCHAR(255),
+    ip_address VARCHAR(255) NOT NULL,
+    tags TEXT [] NOT NULL,
+    -- 
+    created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE variables (
+    id UUID PRIMARY KEY,
+    device_id UUID NOT NULL,
+    --
+    name VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    tags TEXT [] NOT NULL,
+    --
+    scale_factor FLOAT NOT NULL,
+    offset_factor FLOAT NOT NULL,
+    unit VARCHAR(255) NOT NULL,
     port INTEGER NOT NULL,
     protocol VARCHAR(255) NOT NULL,
     protocol_params JSONB NOT NULL,
-    params JSONB NOT NULL,
-    communication_settings JSONB NOT NULL,
-    configuration JSONB NOT NULL,
-    tags TEXT [] NOT NULL,
     -- 
     created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     -- 
-    FOREIGN KEY (driver_id) REFERENCES drivers(id)
+    FOREIGN KEY (device_id) REFERENCES devices(id) -- Assuming you have a devices table
 );
 
 CREATE TABLE hmi (
     id UUID PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    cover_uri VARCHAR(255),
-    owner_id UUID NOT NULL,
+    description TEXT NOT NULL,
+    cover VARCHAR(255),
+    tags TEXT [] NOT NULL,
+    --
     variables UUID [],
     frontend_layout VARCHAR(255) NOT NULL,
-    frontend_layout_settings JSONB NOT NULL,
     -- 
     created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    -- 
-    FOREIGN KEY (owner_id) REFERENCES users(id)
-);
-
-CREATE TABLE variables (
-    id UUID PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    hmi_id UUID NOT NULL,
-    device_id UUID NOT NULL,
-    protocol VARCHAR(255) NOT NULL,
-    update_interval INTEGER NOT NULL,
-    device_configuration_path TEXT NOT NULL,
-    -- 
-    created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    -- 
-    FOREIGN KEY (hmi_id) REFERENCES hmi(id),
-    FOREIGN KEY (device_id) REFERENCES devices(id) -- Assuming you have a devices table
+    updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );

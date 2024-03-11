@@ -5,11 +5,35 @@ import { NotFoundError } from "../errors/not-found-error";
 
 // sub-routers
 import { authRouter } from "./auth";
+import { getDeviceById, getHMIById } from "../handlers/params";
+import { DevicesHandlers } from "../handlers/devices";
+import { HMIsHandlers } from "../handlers/hmis";
 
 const router = Router();
 
+router.param("hmi_id", getHMIById);
+router.param("device_id", getDeviceById);
+
 // routes
 router.use("/auth", authRouter);
+
+router.get("/devices", DevicesHandlers.getDevicesHandler);
+router.get("/devices/:device_id", DevicesHandlers.getDeviceByIdHandler);
+router.get(
+  "/devices/:device_id/variables",
+  DevicesHandlers.getVariablesByDeviceIdHandler
+);
+router.post("/devices", DevicesHandlers.createDeviceHandler);
+router.post(
+  "/devices/:device_id/variable",
+  DevicesHandlers.createVariableHandler
+);
+
+router.get("/hmis", HMIsHandlers.getHMIsHandler);
+router.get("/hmis/:hmi_id", HMIsHandlers.getHMIByIdHandler);
+router.get("/hmis/:hmi_id/variables", HMIsHandlers.getVariablesByHMIId);
+router.post("/hmis", HMIsHandlers.createHMIHandler);
+router.post("/hmis/:hmi_id/variable", HMIsHandlers.addVariablesToHMI);
 
 // status
 router.get("/status", async (_, res) => {

@@ -1,1 +1,1 @@
-export const HmisValidators = {};
+export const HMIsValidators = {};

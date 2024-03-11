@@ -1,39 +1,128 @@
-import { useParams } from "react-router-dom";
-import { MainLayout } from "../../layouts/MainLayout";
-import { Button, Card, Col, Flex, Row, Tabs, Tag, Typography } from "antd";
-import { Device } from "../../api/api_types";
-import { useState } from "react";
+import { Navigate, useParams } from "react-router-dom";
+import { MainLayout } from "layouts/MainLayout";
+import {
+  Button,
+  Card,
+  Col,
+  Empty,
+  Flex,
+  Row,
+  Tabs,
+  Tag,
+  Typography,
+  notification,
+} from "antd";
+import { Protocols, Variable } from "api/types/index";
+import { useEffect, useState } from "react";
 import { CreateVariable } from "./CreateVariable";
+import { ModbusTable } from "./variables-table/ModbusTable";
+import { useDispatch, useSelector } from "react-redux";
+import { RootStateType } from "store/types";
+import Paths from "routes/paths";
+import {
+  start_get_device_by_id,
+  start_get_variables_by_device_id,
+} from "store/reducers/api/devices";
 
 const { Text, Title } = Typography;
 
-const device: Device = {
-  id: "1",
-  name: "Device 1",
-  description: "This is the first device",
-  tags: ["tag1", "tag2"],
-  ip_address: "192.168.1.70",
-  created_at: "2021-10-10",
-  updated_at: "2021-10-10",
-};
+// const variables: Variable<Protocols>[] = new Array(10)
+//   .fill({})
+//   .map((_, index) => ({
+//     id: Math.random().toString(36).substring(7),
+//     device_id: "1",
+//     name: `Variable ${index}`,
+//     scale: Math.random() * 10,
+//     offset: Math.random() * 10,
+//     unit: "bar",
+//     port: Math.floor(Math.random() * 1000),
+//     protocol: Protocols.MODBUS,
+//     protocol_params: {
+//       slave_id: 1,
+//       address: Math.floor(Math.random() * 1000),
+//       type: ModbusVariableTypes.HOLDING_REGISTER,
+//       data_type:
+//         Math.random() > 0.5
+//           ? ModbusVariableDataTypes.INT16
+//           : ModbusVariableDataTypes.INT32,
+//       byte_order:
+//         Math.random() > 0.5
+//           ? ModbusByteOrder.LITTLE_ENDIAN
+//           : ModbusByteOrder.BIG_ENDIAN,
+//     },
+//     tags: Math.random() > 0.5 ? ["tag1", "tag2"] : [],
+//     created_at: "2021-10-10",
+//     updated_at: "2021-10-10",
+//   }));
+
+// const device: Device = {
+//   id: "1",
+//   name: "Device 1",
+//   description: "This is the first device",
+//   tags: ["tag1", "tag2"],
+//   ip_address: "192.168.1.70",
+//   created_at: "2021-10-10",
+//   updated_at: "2021-10-10",
+// };
 
 export const SingleDevicePage: React.FC<React.PropsWithChildren> = () => {
+  const {
+    api: {
+      devices: {
+        device_by_id: { loading, response, errors },
+        variables_by_device_id: {
+          loading: variablesLoading,
+          response: variablesResponse,
+          errors: variablesErrors,
+        },
+      },
+    },
+  } = useSelector<RootStateType, RootStateType>((state) => state);
+
+  const dispatch = useDispatch();
   const { id } = useParams<{ id: string }>();
   const [createVariableModalOpen, setCreateVariableModalOpen] = useState(false);
 
-  console.log(id);
+  const onCreateVariableModalClose = () => {
+    dispatch(start_get_variables_by_device_id({ device_id: id }));
+    setCreateVariableModalOpen(false);
+  };
 
-  return (
+  useEffect(() => {
+    dispatch(start_get_device_by_id({ device_id: id }));
+    dispatch(start_get_variables_by_device_id({ device_id: id }));
+  }, [id]);
+
+  useEffect(() => {
+    errors?.map((error) => {
+      notification.error({
+        message: error.message,
+      });
+    });
+  }, [errors]);
+
+  useEffect(() => {
+    variablesErrors?.map((error) => {
+      notification.error({
+        message: error.message,
+      });
+    });
+  }, [variablesErrors]);
+
+  return !id ? (
+    <Navigate to={Paths.devices} />
+  ) : (
     <MainLayout>
       {createVariableModalOpen ? (
         <CreateVariable
           open={createVariableModalOpen}
-          onClose={() => setCreateVariableModalOpen(false)}
+          onClose={onCreateVariableModalClose}
         />
       ) : null}
       <Row gutter={[20, 20]} style={{ height: "350px" }} align={"middle"}>
         <Col span={16} style={{ height: "100%" }}>
           <Card
+            loading={loading || !response}
             bordered={false}
             title="Device Details"
             style={{ height: "100%" }}
@@ -41,16 +130,18 @@ export const SingleDevicePage: React.FC<React.PropsWithChildren> = () => {
             <Flex align="center" justify="space-between">
               <Text type="secondary">Device Name:</Text>
               <Title level={3} style={{ margin: 0, padding: 0 }}>
-                {device.name}
+                {response?.device.name}
               </Title>
             </Flex>
             <Flex align="center" justify="space-between">
               <Text type="secondary">Created At:</Text>
-              <Text>{new Date(device.created_at).toDateString()}</Text>
+              <Text>
+                {new Date(response?.device.created_at || "").toDateString()}
+              </Text>
             </Flex>
             <Flex align="center" justify="space-between">
               <Text type="secondary">IP Address:</Text>
-              <Text>{device.ip_address}</Text>
+              <Text>{response?.device.ip_address}</Text>
             </Flex>
             <Flex align="center" justify="space-between">
               <Text type="secondary">Number of variables:</Text>
@@ -63,7 +154,7 @@ export const SingleDevicePage: React.FC<React.PropsWithChildren> = () => {
             <Flex align="center" justify="space-between">
               <Text type="secondary">Tags:</Text>
               <Flex align="center" justify="space-between" gap={5}>
-                {device.tags.map((tag) => (
+                {response?.device.tags.map((tag) => (
                   <Tag key={tag} color="blue" style={{ margin: 0 }}>
                     {tag}
                   </Tag>
@@ -78,7 +169,7 @@ export const SingleDevicePage: React.FC<React.PropsWithChildren> = () => {
               justify="space-between"
               style={{ padding: "1rem" }}
             >
-              <Text>{device.description}</Text>
+              <Text>{response?.device.description}</Text>
             </Flex>
           </Card>
         </Col>
@@ -89,7 +180,9 @@ export const SingleDevicePage: React.FC<React.PropsWithChildren> = () => {
             styles={{ body: { padding: 0, height: "100%", width: "100%" } }}
           >
             <img
-              src={device.cover || "https://via.placeholder.com/200x150"}
+              src={
+                response?.device.cover || "https://via.placeholder.com/200x150"
+              }
               alt="device cover"
               style={{ height: "100%", width: "100%", objectFit: "cover" }}
             />
@@ -100,6 +193,7 @@ export const SingleDevicePage: React.FC<React.PropsWithChildren> = () => {
       <Row style={{ padding: "10px", marginTop: "1rem" }}>
         <Col span={24}>
           <Card
+            loading={variablesLoading || !variablesResponse}
             className="single-device-protocols-card"
             bordered={false}
             title={
@@ -123,12 +217,24 @@ export const SingleDevicePage: React.FC<React.PropsWithChildren> = () => {
                 {
                   key: "modbus",
                   label: "Modbus",
-                  children: <div>Modbus</div>,
+                  children: (
+                    <ModbusTable
+                      variables={
+                        variablesResponse?.variables.filter(
+                          (variable) => variable.protocol === Protocols.MODBUS
+                        ) as Variable<Protocols.MODBUS>[]
+                      }
+                    />
+                  ),
                 },
                 {
                   key: "opcua",
                   label: "OPC UA",
-                  children: <div>OPC UA</div>,
+                  children: (
+                    <Empty
+                      description={<span>Protocol not yet supported</span>}
+                    />
+                  ),
                 },
               ]}
             />

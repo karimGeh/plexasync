@@ -1,9 +1,9 @@
 import { Card, Flex, Tag, Typography } from "antd";
-import { Device } from "../../api/api_types";
+import { Device } from "api/types/index";
 
 import "styles/components/common/DeviceCard.scss";
 import { useNavigate } from "react-router-dom";
-import Paths from "../../routes/paths";
+import Paths from "routes/paths";
 
 const { Title, Text } = Typography;
 
@@ -20,6 +20,7 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({ device }) => {
       cover={
         <img
           alt="example"
+          style={{ objectFit: "cover", maxHeight: 300 }}
           src={device.cover || "https://via.placeholder.com/200x150"}
         />
       }

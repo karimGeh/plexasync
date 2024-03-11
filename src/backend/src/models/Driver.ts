@@ -1,9 +1,9 @@
 import db from "../db";
 import { isValidProtocolParams } from "../helpers/protocolParamsVerifier";
-import { DriverType } from "../types";
 import { Protocols } from "../types/Enums";
 import fs from "fs";
 import path from "path";
+import { DriverType } from "../types/models";
 
 export class DriverModel {
   static async createDriver(driver: DriverType<Protocols>) {

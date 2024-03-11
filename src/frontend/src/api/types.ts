@@ -1,10 +1,7 @@
 export enum APIMainRoutes {
-  ASSETS = "assets",
-  ORGANIZATIONS = "organizations",
-  PROJECTS = "projects",
-  ROOTS = "roots",
-  URLS = "urls",
-  VULNS = "vulns",
+  DEVICES = "devices",
+  HMIS = "hmis",
+  VARIABLES = "variables",
 }
 
 export interface RequestWithQueryParams {

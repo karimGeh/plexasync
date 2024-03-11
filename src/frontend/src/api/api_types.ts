@@ -1,12 +1,12 @@
 export interface Device {
   id: string;
-  cover?: string;
+  cover: string;
   name: string;
-  description?: string;
+  description: string;
   tags: string[];
   ip_address: string;
-  created_at: string;
-  updated_at: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export enum Protocols {
@@ -35,6 +35,8 @@ export enum ModbusVariableTypes {
 }
 
 export enum ModbusVariableDataTypes {
+  INT = "int",
+  UINT = "uint",
   INT16 = "int16",
   UINT16 = "uint16",
   INT32 = "int32",
@@ -66,7 +68,6 @@ export enum ModbusByteOrder {
 export interface ModbusVariableParams {
   slave_id: number;
   address: number;
-  quantity: number;
   type: ModbusVariableTypes;
   data_type: ModbusVariableDataTypes;
   byte_order: ModbusByteOrder;
@@ -81,11 +82,36 @@ export interface Variable<T extends Protocols> {
   device_id: string;
 
   name: string;
+  scale_factor?: number;
+  offset_factor?: number;
+  unit?: string;
+  port: number;
   protocol: T;
   protocol_params: ProtocolVariableParams<T>;
 
   description?: string;
   tags: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+// hmis
+
+export enum HMIFrontendLayouts {
+  default = "default",
+}
+
+export interface HMI {
+  id: string;
+  name: string;
+  description: string;
+  tags: string[];
+  cover?: string;
+
+  variables: string[];
+
+  frontend_layout: HMIFrontendLayouts;
+
   created_at: string;
   updated_at: string;
 }

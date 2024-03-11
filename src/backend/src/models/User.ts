@@ -2,8 +2,8 @@ import db from "../db";
 import { v4 as uuidv4 } from "uuid";
 
 // types
-import { UserType } from "../types";
 import { Password } from "../helpers/password";
+import { UserType } from "../types/models";
 
 export class UserModel {
   static async create_user({

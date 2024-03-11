@@ -1,1 +1,1 @@
-export const HmisHandlers = {};
+export const HMIsHandlers = {};

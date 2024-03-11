@@ -1,5 +1,16 @@
-import { Button, Drawer, Flex, Form, FormProps, Input, Select } from "antd";
-import { Device } from "../../api/api_types";
+import {
+  Button,
+  Drawer,
+  Flex,
+  Form,
+  FormProps,
+  Input,
+  Select,
+  notification,
+} from "antd";
+import { Device } from "api/types/index";
+import DevicesClientAPI from "api/handlers/devices";
+import { useState } from "react";
 
 interface CreateDeviceModalProps extends React.PropsWithChildren {
   open: boolean;
@@ -11,9 +22,21 @@ export const CreateDeviceModal: React.FC<CreateDeviceModalProps> = ({
   onClose,
 }) => {
   const [form] = Form.useForm<Device>();
+  const [loading, setLoading] = useState(false);
 
-  const onSubmit: FormProps<Device>["onFinish"] = (values) => {
-    console.log(values);
+  const onSubmit: FormProps<Device>["onFinish"] = async (values) => {
+    setLoading(true);
+    const { errors } = await DevicesClientAPI.createDevice(values);
+    setLoading(false);
+    if (errors) {
+      errors.map((error) => {
+        notification.error({
+          message: error.message,
+        });
+      });
+      return;
+    }
+    onClose();
   };
   return (
     <Drawer
@@ -23,8 +46,14 @@ export const CreateDeviceModal: React.FC<CreateDeviceModalProps> = ({
       title="Create A New Device"
       footer={
         <Flex justify="end" gap={10} style={{ padding: "1rem" }}>
-          <Button onClick={onClose}>Cancel</Button>
-          <Button type="primary" onClick={() => form.submit()}>
+          <Button disabled={loading} onClick={onClose}>
+            Cancel
+          </Button>
+          <Button
+            disabled={loading}
+            type="primary"
+            onClick={() => form.submit()}
+          >
             Create
           </Button>
         </Flex>
