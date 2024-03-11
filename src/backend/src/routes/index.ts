@@ -8,6 +8,7 @@ import { authRouter } from "./auth";
 import { getDeviceById, getHMIById } from "../handlers/params";
 import { DevicesHandlers } from "../handlers/devices";
 import { HMIsHandlers } from "../handlers/hmis";
+import { VariablesHandlers } from "../handlers/variables";
 
 const router = Router();
 
@@ -33,7 +34,13 @@ router.get("/hmis", HMIsHandlers.getHMIsHandler);
 router.get("/hmis/:hmi_id", HMIsHandlers.getHMIByIdHandler);
 router.get("/hmis/:hmi_id/variables", HMIsHandlers.getVariablesByHMIId);
 router.post("/hmis", HMIsHandlers.createHMIHandler);
-router.post("/hmis/:hmi_id/variable", HMIsHandlers.addVariablesToHMI);
+router.post("/hmis/:hmi_id/variables", HMIsHandlers.addVariablesToHMI);
+router.post(
+  "/hmis/:hmi_id/variables/remove",
+  HMIsHandlers.removeVariablesFromHMI
+);
+
+router.get("/variables", VariablesHandlers.getAllVariables);
 
 // status
 router.get("/status", async (_, res) => {

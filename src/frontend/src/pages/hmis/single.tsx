@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { Navigate, useParams } from "react-router-dom";
 import { MainLayout } from "layouts/MainLayout";
 import {
   Button,
@@ -12,13 +12,6 @@ import {
   Typography,
   notification,
 } from "antd";
-import {
-  ModbusByteOrder,
-  ModbusVariableDataTypes,
-  ModbusVariableTypes,
-  Protocols,
-  Variable,
-} from "api/types/index";
 import { AddVariableModal } from "./AddVariableModal";
 import Paths from "routes/paths";
 import { IoMdOpen } from "react-icons/io";
@@ -28,49 +21,9 @@ import {
   start_get_hmi_by_id,
   start_get_variables_by_hmi_id,
 } from "store/reducers/api/hmis";
+import HMIsClientAPI from "api/handlers/hmis";
 
 const { Text, Title } = Typography;
-
-// const variables: Variable<Protocols>[] = new Array(10)
-//   .fill({})
-//   .map((_, index) => ({
-//     id: Math.random().toString(36).substring(7),
-//     device_id: ["752wuv", "02dkzd", "qdan7h", "nuax2"][
-//       Math.floor(Math.random() * 4)
-//     ],
-//     name: `Variable ${index}`,
-//     unit: "C",
-//     description: "This is a variable",
-//     port: Math.floor(Math.random() * 1000),
-//     protocol: Protocols.MODBUS,
-//     protocol_params: {
-//       slave_id: 1,
-//       address: Math.floor(Math.random() * 1000),
-//       type: ModbusVariableTypes.HOLDING_REGISTER,
-//       data_type:
-//         Math.random() > 0.5
-//           ? ModbusVariableDataTypes.INT16
-//           : ModbusVariableDataTypes.INT32,
-//       byte_order:
-//         Math.random() > 0.5
-//           ? ModbusByteOrder.LITTLE_ENDIAN
-//           : ModbusByteOrder.BIG_ENDIAN,
-//     },
-//     tags: Math.random() > 0.5 ? ["tag1", "tag2"] : [],
-//     created_at: "2021-10-10",
-//     updated_at: "2021-10-10",
-//   }));
-
-// const hmi = {
-//   id: "1",
-//   name: "HMI 1",
-//   description: "This is the first HMI",
-//   tags: ["tag1", "tag2"],
-//   variables: variables.map((v) => v.id),
-//   cover: "https://via.placeholder.com/150",
-//   created_at: "2021-10-10",
-//   updated_at: "2021-10-10",
-// };
 
 export const SingleHMIPage: React.FC<React.PropsWithChildren> = () => {
   const {
@@ -87,9 +40,32 @@ export const SingleHMIPage: React.FC<React.PropsWithChildren> = () => {
   } = useSelector<RootStateType, RootStateType>((state) => state);
   const { id } = useParams<{ id: string }>();
   const [addVariableModalOpen, setAddVariableModalOpen] = useState(false);
+  const [loadingRemoveVariable, setLoadingRemoveVariable] = useState("");
 
-  const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  const onClose = () => {
+    dispatch(start_get_hmi_by_id({ hmi_id: id }));
+    dispatch(start_get_variables_by_hmi_id({ hmi_id: id }));
+    setAddVariableModalOpen(false);
+  };
+
+  const onRemoveVariableClick = async (variable_id: string) => {
+    if (loadingRemoveVariable || !id) return;
+    setLoadingRemoveVariable(variable_id);
+    const { errors } = await HMIsClientAPI.removeVariables({
+      hmi_id: id,
+      variables: [variable_id],
+    });
+    setLoadingRemoveVariable("");
+    if (errors) {
+      notification.error({
+        message: "Failed to remove variable",
+      });
+    }
+    dispatch(start_get_hmi_by_id({ hmi_id: id }));
+    dispatch(start_get_variables_by_hmi_id({ hmi_id: id }));
+  };
 
   useEffect(() => {
     dispatch(start_get_hmi_by_id({ hmi_id: id }));
@@ -116,10 +92,7 @@ export const SingleHMIPage: React.FC<React.PropsWithChildren> = () => {
   ) : (
     <MainLayout>
       {addVariableModalOpen ? (
-        <AddVariableModal
-          open={addVariableModalOpen}
-          onClose={() => setAddVariableModalOpen(false)}
-        />
+        <AddVariableModal open={addVariableModalOpen} onClose={onClose} />
       ) : null}
       <Row gutter={[20, 20]} style={{ height: "350px" }} align={"middle"}>
         <Col span={16} style={{ height: "100%" }}>
@@ -275,6 +248,20 @@ export const SingleHMIPage: React.FC<React.PropsWithChildren> = () => {
                   sorter: (a, b) =>
                     new Date(a.created_at).getTime() -
                     new Date(b.created_at).getTime(),
+                },
+                {
+                  title: "Actions",
+                  dataIndex: "id",
+                  key: "id",
+                  render: (id: string) => (
+                    <Button
+                      type="link"
+                      onClick={() => onRemoveVariableClick(id)}
+                      loading={loadingRemoveVariable === id}
+                    >
+                      <Text type="danger">Remove</Text>
+                    </Button>
+                  ),
                 },
               ]}
             />

@@ -14,8 +14,6 @@ export const requireReadStoryAuthorization = (
   // - you are the author
   // - story is public
 
-
-
   if (user && user.id === story.author) {
     return next();
   }

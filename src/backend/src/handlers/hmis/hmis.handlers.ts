@@ -69,6 +69,23 @@ const addVariablesToHMI: AddVariablesToHMIHandlerType = async (req, res) => {
   });
 };
 
+const removeVariablesFromHMI: AddVariablesToHMIHandlerType = async (
+  req,
+  res
+) => {
+  const { variables } = req.body;
+  const hmi = req.hmi;
+
+  hmi.variables = hmi.variables.filter((v) => !variables.includes(v));
+
+  await HMIModel.updateHMIVariables(hmi.id, hmi.variables);
+
+  res.status(200).json({
+    success: true,
+    hmi,
+  });
+};
+
 const getVariablesByHMIId: GetVariablesByHMIIdHandlerType = async (
   req,
   res
@@ -89,5 +106,6 @@ export const HMIsHandlers = {
   getHMIByIdHandler,
   getHMIsHandler,
   addVariablesToHMI,
+  removeVariablesFromHMI,
   getVariablesByHMIId,
 };

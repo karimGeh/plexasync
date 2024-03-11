@@ -23,10 +23,15 @@ const createHMI = ApiGenerator<
   CreateHMIHandlerType["res"]
 >((data) => api.post("/hmis/", data));
 
-const addVariable = ApiGenerator<
+const addVariables = ApiGenerator<
   AddVariablesToHMIHandlerType["req"] & { hmi_id: string },
   AddVariablesToHMIHandlerType["res"]
->((data) => api.post(`/hmis/${data.hmi_id}/variable`, data));
+>((data) => api.post(`/hmis/${data.hmi_id}/variables`, data));
+
+const removeVariables = ApiGenerator<
+  AddVariablesToHMIHandlerType["req"] & { hmi_id: string },
+  AddVariablesToHMIHandlerType["res"]
+>((data) => api.post(`/hmis/${data.hmi_id}/variables/remove`, data));
 
 const getVariablesByHMIId = ApiGenerator<
   GetVariablesByHMIIdHandlerType["req"] & { hmi_id: string },
@@ -37,7 +42,8 @@ const HMIsClientAPI = {
   getAllHMIs,
   getHMIById,
   createHMI,
-  addVariable,
+  addVariables,
+  removeVariables,
   getVariablesByHMIId,
 };
 
