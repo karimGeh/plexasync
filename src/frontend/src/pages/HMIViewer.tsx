@@ -1,94 +1,99 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import {
-  Button,
-  Card,
-  Col,
-  Flex,
-  Layout,
-  Row,
-  Table,
-  Tag,
-  Typography,
-} from "antd";
-import {
-  ModbusByteOrder,
-  ModbusVariableDataTypes,
-  ModbusVariableTypes,
-  Protocols,
-  Variable,
-} from "api/types/index";
+import { Card, Flex, Layout, Typography, notification } from "antd";
 import { VariableValueComponent } from "components/common/VariableValueComponent";
+import { useDispatch, useSelector } from "react-redux";
+import { RootStateType } from "store/types";
+import { start_get_variables_by_hmi_id } from "store/reducers/api/hmis";
+import { io, Socket } from "socket.io-client";
 
 const { Text, Title } = Typography;
-
-const variables: Variable<Protocols>[] = new Array(10)
-  .fill({})
-  .map((_, index) => ({
-    id: Math.random().toString(36).substring(7),
-    device_id: ["752wuv", "02dkzd", "qdan7h", "nuax2"][
-      Math.floor(Math.random() * 4)
-    ],
-    name: `Variable ${index}`,
-    scale: Math.random() > 0.5 ? 1 : Math.random() * 100,
-    unit: ["C", "F", "K", "Pa", "bar", "psi", "m3", "L", "gal", "Hz", "KM/H"][
-      Math.floor(Math.random() * 11)
-    ],
-    protocol: Protocols.MODBUS,
-    protocol_params: {
-      slave_id: 1,
-      address: Math.floor(Math.random() * 1000),
-      type: ModbusVariableTypes.HOLDING_REGISTER,
-      data_type:
-        Math.random() > 0.5
-          ? ModbusVariableDataTypes.INT16
-          : ModbusVariableDataTypes.INT32,
-      byte_order:
-        Math.random() > 0.5
-          ? ModbusByteOrder.LITTLE_ENDIAN
-          : ModbusByteOrder.BIG_ENDIAN,
-    },
-    tags: Math.random() > 0.5 ? ["tag1", "tag2"] : [],
-    created_at: "2021-10-10",
-    updated_at: "2021-10-10",
-  }));
-
-const hmi = {
-  id: "1",
-  name: "HMI 1",
-  description: "This is the first HMI",
-  tags: ["tag1", "tag2"],
-  variables: variables.map((v) => v.id),
-  cover: "https://via.placeholder.com/150",
-  created_at: "2021-10-10",
-  updated_at: "2021-10-10",
-};
+const SERVER_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export const HMIViewer: React.FC<React.PropsWithChildren> = () => {
+  const {
+    api: {
+      hmis: {
+        get_variables_by_hmi_id: { loading, response, errors },
+      },
+    },
+  } = useSelector<RootStateType, RootStateType>((state) => state);
   const { id } = useParams<{ id: string }>();
-  const [variableValues, setVariableValues] = useState<Record<string, string>>(
-    {}
-  );
+  const [socket, setSocket] = useState<Socket | null>(null);
+  const [isSocketConnected, setIsSocketConnected] = useState(false);
+  const [variableValues, setVariableValues] = useState<{
+    [key: string]: string;
+  }>({});
+
+  const initSocket = async () => {
+    if (!id) return;
+
+    if (socket) socket.disconnect();
+
+    const newSocket = io(SERVER_URL, {
+      transports: ["websocket"],
+    });
+
+    setSocket(newSocket);
+
+    newSocket.on(
+      "variable_value",
+      (data: { variable_id: string; value: string }) => {
+        setVariableValues((prev) => {
+          return {
+            ...prev,
+            [data.variable_id]: data.value,
+          };
+        });
+      }
+    );
+
+    newSocket.on("connect", () => {
+      setIsSocketConnected(true);
+      // newSocket.join(id);
+
+      newSocket.emit("join", id);
+    });
+
+    newSocket.on("disconnect", async () => {
+      setIsSocketConnected(false);
+      console.log("====================================");
+      console.log("Socket disconnected");
+      console.log("====================================");
+      // retry connection
+      for (let i = 0; i < 3; i++) {
+        newSocket.connect();
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        if (newSocket.connected) {
+          break;
+        }
+      }
+    });
+  };
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setVariableValues(
-        (variables as Variable<Protocols.MODBUS>[]).reduce((acc, variable) => {
-          const val = Math.random() * 99999999999999 - 99999999999999 / 2;
-          acc[variable.id] =
-            variable.protocol_params.data_type === ModbusVariableDataTypes.INT16
-              ? val.toString(2).slice(0, 16)
-              : variable.protocol_params.data_type ===
-                ModbusVariableDataTypes.INT32
-              ? val.toString(2).slice(0, 32)
-              : "0";
-          return acc;
-        }, {} as Record<string, string>)
-      );
-    }, 1000);
-    return () => clearInterval(interval);
+    dispatch(
+      start_get_variables_by_hmi_id({
+        hmi_id: id,
+      })
+    );
+  }, [id]);
+
+  useEffect(() => {
+    // Connect to Socket.IO server room id = hmi_id
+    initSocket();
   }, []);
-  console.log(id);
+
+  useEffect(() => {
+    errors?.map((error) => {
+      notification.error({
+        message: error.message,
+      });
+    });
+  }, [errors]);
+
   return (
     <Layout
       style={{
@@ -100,12 +105,25 @@ export const HMIViewer: React.FC<React.PropsWithChildren> = () => {
     >
       <Flex align="center" justify="center">
         <Card
+          loading={loading || !response}
           title={
-            <Flex vertical align="center">
-              <Title level={4} style={{ margin: 0, padding: 0 }}>
-                {hmi.name}
-              </Title>
-              <Text type="secondary">{hmi.description}</Text>
+            <Flex align="center" justify="space-between">
+              <div className=""></div>
+              <Flex vertical align="center">
+                <Title level={4} style={{ margin: 0, padding: 0 }}>
+                  {response?.hmi.name}
+                </Title>
+                <Text type="secondary">{response?.hmi.description}</Text>
+              </Flex>
+              {/* connection indicator */}
+              <div
+                style={{
+                  width: "10px",
+                  height: "10px",
+                  borderRadius: "50%",
+                  backgroundColor: isSocketConnected ? "green" : "red",
+                }}
+              ></div>
             </Flex>
           }
           style={{
@@ -122,7 +140,7 @@ export const HMIViewer: React.FC<React.PropsWithChildren> = () => {
           }}
         >
           <Flex wrap="wrap" align="center" justify="center" gap={16}>
-            {variables.map((variable) => (
+            {response?.variables.map((variable) => (
               <Card
                 key={variable.id}
                 title={variable.name}

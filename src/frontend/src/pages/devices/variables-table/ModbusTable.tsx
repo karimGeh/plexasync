@@ -39,10 +39,10 @@ export const ModbusTable: React.FC<ModbusVariableParams> = ({ variables }) => {
         },
         {
           title: "Address",
-          dataIndex: ["protocol_params", "address"],
-          key: "address",
+          dataIndex: ["protocol_params", "start_address"],
+          key: "start_address",
           sorter: (a, b) =>
-            a.protocol_params.address - b.protocol_params.address,
+            a.protocol_params.start_address - b.protocol_params.start_address,
         },
         {
           title: "Type",

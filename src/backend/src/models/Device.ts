@@ -50,4 +50,13 @@ export class DeviceModel {
 
     return devices.rows;
   }
+
+  static async getDevicesByIdsList(ids: string[]) {
+    const devices = await db.pool.query<Device>(
+      `SELECT * FROM devices WHERE id = ANY($1)`,
+      [ids]
+    );
+
+    return devices.rows;
+  }
 }

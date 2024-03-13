@@ -65,7 +65,7 @@ export enum ModbusByteOrder {
 
 export interface ModbusVariableParams {
   slave_id: number;
-  address: number;
+  start_address: number;
   type: ModbusVariableTypes;
   data_type: ModbusVariableDataTypes;
   byte_order: ModbusByteOrder;
