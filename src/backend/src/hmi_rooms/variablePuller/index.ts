@@ -1,5 +1,6 @@
 import { Protocols, Variable } from "../../types";
 import { ModbusVariablePuller } from "./ModbusVariablePuller";
+import { VariablePuller } from "./VariablePuller";
 
 export const createVariablePuller = (
   variable: Variable<Protocols>,
@@ -14,6 +15,6 @@ export const createVariablePuller = (
         onNewValue
       );
     default:
-      throw new Error("Protocol not supported");
+      return new VariablePuller(variable, ip_address, onNewValue);
   }
 };

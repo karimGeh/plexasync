@@ -8,7 +8,7 @@ import { start_get_variables_by_hmi_id } from "store/reducers/api/hmis";
 import { io, Socket } from "socket.io-client";
 
 const { Text, Title } = Typography;
-const SERVER_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const SERVER_URL = import.meta.env.VITE_API_URL || "/";
 
 export const HMIViewer: React.FC<React.PropsWithChildren> = () => {
   const {

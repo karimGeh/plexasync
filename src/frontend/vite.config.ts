@@ -5,6 +5,9 @@ import react from "@vitejs/plugin-react";
 export default defineConfig({
   plugins: [react()],
   root: ".", // default value
+  build: {
+    outDir: "../backend/client",
+  },
   resolve: {
     alias: {
       api: "/src/api",

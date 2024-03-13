@@ -18,6 +18,8 @@ class HMIRoomsController {
     if (!this.hmis.includes(hmi_id)) {
       this.hmis.push(hmi_id);
       this.initHMI(hmi_id);
+    } else {
+      this.updateHMI(hmi_id);
     }
   }
 
@@ -35,7 +37,10 @@ class HMIRoomsController {
       variables.map((v) => v.device_id)
     );
 
-    const variablesPuller = variables.map((variable) => {
+    const variablesPullers = variables.map((variable) => {
+      if (!variable.device_id) {
+        return;
+      }
       const device = devices.find((d) => d.id === variable.device_id);
       if (!device) {
         return;
@@ -53,7 +58,48 @@ class HMIRoomsController {
       return variablePuller;
     });
 
-    this.variable_pullers[hmi_id] = variablesPuller;
+    this.variable_pullers[hmi_id] = variablesPullers;
+  }
+
+  private async updateHMI(hmi_id: string) {
+    const hmi = await HMIModel.getHMIById(hmi_id);
+    const variables = await VariableModel.getVariablesByIdsList(hmi.variables);
+    const devices = await DeviceModel.getDevicesByIdsList(
+      variables.map((v) => v.device_id)
+    );
+
+    const variablesPullers = variables
+      // remove variables that are already already in the hmiVariablePullers
+      .filter((variable) => {
+        return !this.variable_pullers[hmi_id].find(
+          (vp) => vp.variable.id === variable.id
+        );
+      })
+      .map((variable) => {
+        if (!variable.device_id) {
+          return;
+        }
+        const device = devices.find((d) => d.id === variable.device_id);
+
+        if (!device) {
+          return;
+        }
+
+        const variablePuller = createVariablePuller(
+          variable,
+          device.ip_address,
+          (value) => {
+            this.ioServer.to(hmi_id).emit("variable_value", {
+              variable_id: variable.id,
+              value,
+            });
+          }
+        );
+
+        return variablePuller;
+      });
+
+    this.variable_pullers[hmi_id] = variablesPullers;
   }
 }
 

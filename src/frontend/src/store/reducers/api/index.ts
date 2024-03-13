@@ -8,7 +8,6 @@ export type APIState = {
   [APIMainRoutes.DEVICES]: ReturnType<typeof devicesReducer>;
   [APIMainRoutes.HMIS]: ReturnType<typeof hmisReducer>;
   [APIMainRoutes.VARIABLES]: ReturnType<typeof variablesReducer>;
-  placeholder: string;
 };
 
 // eslint-disable-next-line
