@@ -24,27 +24,26 @@ class ModbusVariablePuller extends VariablePuller {
     onNewValue: (value: string) => void
   ) {
     super(variable, ip_address, onNewValue);
-    const socket = new net.Socket();
-    const client = new Modbus.client.TCP(
-      socket,
-      variable.protocol_params.slave_id
-    );
     try {
+      const socket = new net.Socket();
+      const client = new Modbus.client.TCP(
+        socket,
+        variable.protocol_params.slave_id
+      );
       socket.connect({ host: ip_address, port: variable.port });
 
       socket.on("connect", () => {
         this.isClientConnected = true;
+        this.start();
       });
+
+      this.socket = socket;
+      this.client = client;
+      this.variable = variable;
+      this.onNewValue = onNewValue;
     } catch (error) {
       console.log("error", error);
     }
-
-    this.socket = socket;
-    this.client = client;
-    this.variable = variable;
-    this.onNewValue = onNewValue;
-
-    this.start();
   }
 
   async start() {
