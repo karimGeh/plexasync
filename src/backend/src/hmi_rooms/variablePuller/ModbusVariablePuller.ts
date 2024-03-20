@@ -69,43 +69,48 @@ class ModbusVariablePuller extends VariablePuller {
     if (!this.isClientConnected) {
       return "0";
     }
-    const response = await this.client.readHoldingRegisters(
-      this.variable.protocol_params.start_address,
-      [ModbusVariableDataTypes.INT16, ModbusVariableDataTypes.UINT16].includes(
-        this.variable.protocol_params.data_type
-      )
-        ? 1
-        : [
-            ModbusVariableDataTypes.INT32,
-            ModbusVariableDataTypes.UINT32,
-            ModbusVariableDataTypes.FLOAT,
-          ].includes(this.variable.protocol_params.data_type)
-        ? 2
-        : 1
-    );
+    try {
+      const response = await this.client.readHoldingRegisters(
+        this.variable.protocol_params.start_address,
+        [
+          ModbusVariableDataTypes.INT16,
+          ModbusVariableDataTypes.UINT16,
+        ].includes(this.variable.protocol_params.data_type)
+          ? 1
+          : [
+              ModbusVariableDataTypes.INT32,
+              ModbusVariableDataTypes.UINT32,
+              ModbusVariableDataTypes.FLOAT,
+            ].includes(this.variable.protocol_params.data_type)
+          ? 2
+          : 1
+      );
 
-    const response_array = response.response.body.valuesAsArray as number[];
+      const response_array = response.response.body.valuesAsArray as number[];
 
-    // const response_array = [
-    //   Math.floor(Math.random() * 100),
-    //   // Math.floor(Math.random() * 100),
-    // ];
+      // const response_array = [
+      //   Math.floor(Math.random() * 100),
+      //   // Math.floor(Math.random() * 100),
+      // ];
 
-    if (
-      this.variable.protocol_params.byte_order === ModbusByteOrder.BIG_ENDIAN
-    ) {
-      response_array.reverse();
+      if (
+        this.variable.protocol_params.byte_order === ModbusByteOrder.BIG_ENDIAN
+      ) {
+        response_array.reverse();
+      }
+
+      const value = response_array.reduce((acc, val, i) => {
+        const shift = i * 16;
+        return acc + val * Math.pow(2, shift);
+      }, 0);
+
+      // to binary string
+      const binary_string = value.toString(2);
+
+      return binary_string;
+    } catch (error) {
+      return "0";
     }
-
-    const value = response_array.reduce((acc, val, i) => {
-      const shift = i * 16;
-      return acc + val * Math.pow(2, shift);
-    }, 0);
-
-    // to binary string
-    const binary_string = value.toString(2);
-
-    return binary_string;
   }
 
   close() {

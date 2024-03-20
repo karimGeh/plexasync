@@ -13,6 +13,7 @@ export default defineConfig({
       api: "/src/api",
       assets: "/src/assets",
       components: "/src/components",
+      helpers: "/src/helpers",
       conf: "/src/conf",
       layouts: "/src/layouts",
       pages: "/src/pages",

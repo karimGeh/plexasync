@@ -14,6 +14,7 @@
     "@ant-design/icons": "^5.3.0",
     "@reduxjs/toolkit": "^2.2.1",
     "@rollup/plugin-replace": "^5.0.5",
+    "@stdlib/number-float32-base-from-binary-string": "^0.2.1",
     "@types/react-leaflet": "^3.0.0",
     "antd": "^5.14.2",
     "antd-style": "^3.6.1",
